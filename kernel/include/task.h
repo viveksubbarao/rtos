@@ -1,6 +1,4 @@
-#include ".\kernel.h"
-
-#define MAXTASK 3
+#define MAXTASK 1024 
 
 num task_status {
 	UNUSED,
@@ -12,22 +10,17 @@ num task_status {
  * task ctrl block
  */
 typedef struct tcb {
-	int             _new;
-	unsigned int    ss, sp;
-	unsigned int    ip;
-	int             priority;
+	int             _new;		// new task ?
+	unsigned int    ss, sp;		// stack pointers
+	unsigned int    ip;		// instruction pointer
+	int             priority;	// task priority
 	int             timerticks;
-	task_status     status;
-	int             id;
+	task_status     status;		// current status of the task
+	int             id;		// task id
 }task;
 
-/*
- * TODO: Don't restrict the no of tasks to 3 !
- */
 char far(stack[MAXTASK][4000]);	//stacks, one for each task
 
-task tasks[MAXTASK];
-int nooftasks;
 void createtask(void(*task)(void), int priority);
 void deletetask(int tid);
 void resume(int tid);
