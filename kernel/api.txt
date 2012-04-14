@@ -1,0 +1,31 @@
+1) Task API's
+
+	void CreateTask(void (*task)(void) ,int  priority);
+	
+	void Deletetask(int TaskID);
+
+	void _sleep(int TimerTicks);
+
+	void Resume(int TaskID);
+
+2) Message Queue API's
+
+	int CreateQueue(int ID);
+
+	int DeleteQueue(int ID);
+
+	int Post(int MsgQID ,MSG *message);
+
+	MSG* Read(int MsgQID);
+
+3) Mutex API's
+
+	int GetMutex(int ResourceID);
+
+	int CreateMutex(int ResourceID);
+
+	int AquireMutex(int ResourceID);
+
+	int ReleaseMutex(int ResourceID);
+
+	int DeleteMutex(int ResourceID);

@@ -1,0 +1,25 @@
+#include "ll.h"
+
+void interrupt(*oldhandler)(__CPPARGS);
+void interrupt Timer_isr();
+void interrupt switcher();
+
+#define TIMER_INTR 	8  /*0X1C*/     /* The clock tick interrupt */
+#define SCHED_INTR 	200
+#define MAX_TASK_PRI	5
+
+unsigned int m_ss, m_sp;
+
+struct interrupt {
+	unsigned bp, di, si, ds, es, dx, cx, bx, ax, ip, cs, fl;
+};
+
+/*
+ * Contains 5 queues for the 5 different priorities supported.
+ */
+list_head readyq[MAX_TASK_PRI];	
+list_head blockedq;
+
+task *currenttask;		// pointer to the currently running task
+int currentpriority;		// priority of the currently running task
+int isrunning=-1;		// checks wheather a task is running or not
