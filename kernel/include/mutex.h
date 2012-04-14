@@ -1,29 +1,19 @@
-#include ".\kernel.h"
-#define MAXRESOURCES	10
-#define MAXMUTEXES	10
-#define MAXWAITINGTASKS 10
+#include "./kernel.h"
 
-int noofmutexes;
+#define MAX_MUTEXES	10
 
 enum mutex_status {
-	free,aquired
+	FREE,
+	AQUIRED
 };
 
-/*
- * TODO: Don't statically allocate the mutexes.
- * A mutex should be created as and when required!
- */
 struct mutex {
-	int		resid;
-	int		nooftasks;
-	node		tasks[10];
-	int		first;
-	int		last;
-	int		taskid;
-	task		*task;
-	mutex_status	status;
-	int		ownerID;
-}mutex[MAXRESOURCES];
+	int		id;	// mutex identifier
+	list_head	tasks;	// tasks waiting on the mutex
+	int		taskid;	// task id currently holding the  mutex
+	task		*task;	// tcb of the task currently holding the mutex
+	mutex_status	status;	// mutex status
+};
 
 int getmutex(int resid);
 int createmutex(int resid);
