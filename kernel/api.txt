@@ -1,3 +1,6 @@
+!!! NOTE !!!
+DO NOT GO BY THIS DOCUMENT AS THE API'S ARE BEING CHANGED.
+
 1) Task API's
 
 	void CreateTask(void (*task)(void) ,int  priority);
