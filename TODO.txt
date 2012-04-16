@@ -1,0 +1,15 @@
+1. Implement memory manager
+	Implement basic memory allocation and de-allocation routines
+	for the kernel to use which should be generic enough for
+	extension into user-space in the future. Requires a way to
+	describe available memory and manage it using an efficient
+	algorithm.
+
+2. Write ISR's in assembly
+	Right now, all ISR's are in C which is bad. ISR's should be
+	small pieces of assembly code calling a C function to do the
+	major work of the ISR.
+
+3. Write boot code
+	Need code to load and run the operating system if we have to
+	port it to some hardware.
