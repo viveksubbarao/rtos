@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <dos.h>
 #include <conio.h>
-#include<string.h>
-#include ".\MUTEX.H"
+#include <string.h>
+#include "../inc/mutex.h"
 
 char far *scr = (char far *) 0xB8000000L;
-int SelectedTask=-1;	//pointer to the currently running task
-int Priority;
+int priority;
 TASK *temp;
 int tickCount;
 int i;
@@ -165,128 +164,41 @@ void interrupt Timer_isr()
 
 void interrupt switcher()
 {
-	disable();
-	printf("\nSoftware INTERRUPT\n");
+	if(currenttask != NULL) {
+		/*
+		 * save the context of the currently running task
+		 */
+		save_context();
 
- 	if(CurrentTask != NULL)
-	{
-	/*save the context of the currently running task*/
-	CurrentTask->ss=_SS;
-	CurrentTask->sp=_SP;
+		/*
+		 * Put the current task at the back of the ready Q only
+		 * if it isn't blocked
+		 */
+		if(currenttask->status != BLOCKED)
+			rq_enqueue(&readyq[priority], currenttask);
+	}
 
 	/*
-	*  Put the Current Task at the back of the ready Q only
-	*  if it isn,t been blocked
-	*/
-	if(CurrentTask->status!=BLOCKED)
-	{
-	       for(i=0 ; i<10 ; i++)
-		   {
-			if(RQ.ReadyQ[CurrentPriority][i].p == NULL)
-			  {
-				RQ.ReadyQ[CurrentPriority][i].p=CurrentTask;
-				if(RQ.start[CurrentPriority]==-1 && RQ.end[Priority]==-1)
-				{
-					RQ.ReadyQ[CurrentPriority][i].right=-1;
-					RQ.ReadyQ[CurrentPriority][i].left=-1;
-					RQ.start[CurrentPriority]=i;
-					RQ.end[CurrentPriority]=i;
-				}
-				else
-				{
-					RQ.ReadyQ[CurrentPriority][i].right=-1;
-					RQ.ReadyQ[CurrentPriority][i].left=RQ.end[Priority];
-					RQ.ReadyQ[CurrentPriority][RQ.end[Priority]].right=i;
-					RQ.end[CurrentPriority]=i;
-				}
-				break;
-			  }
-		}
-	}
-	}
+	 * choose a task to run
+	 */
+	for(priority = 0 ; priority < 5 ; priority++) {
+		if (reqdyq[priority].len == 0)
+			continue;
 
-	//choose a task to run
-	for(Priority=0 ; Priority<5 ; Priority++)
-	{
-		if(RQ.start[Priority]== -1 && RQ.end[Priority] == -1)
-		   {    /*no tasks exist in the priority queu e*/
-				continue;
-		   }
+		currentpriority = priority;
+		isrunning = 1;
 
-		SelectedTask=RQ.start[Priority];
-		CurrentPriority=Priority;
-		Isrunning=1;
-
-		if(RQ.start[Priority]!=RQ.end[Priority])
-		{
-		RQ.start[Priority]=RQ.ReadyQ[Priority][RQ.start[Priority]].right;
-		RQ.ReadyQ[Priority][RQ.start[Priority]].left=-1;
-		RQ.ReadyQ[Priority][SelectedTask].right=-1;
-		}
-		else
-		{
-		RQ.start[Priority]=-1;
-		RQ.end[Priority]=-1;
-		}
-		CurrentTask=RQ.ReadyQ[CurrentPriority][SelectedTask].p;
-		RQ.ReadyQ[Priority][SelectedTask].p=NULL;
-		
+		currenttask = rq_dequeue(&readyq[priority]);
 		break;
-
 	}
 
-	/*load the choosen tasks stack pointers and run the task*/
-	_SS=CurrentTask->ss;
-	_SP=CurrentTask->sp;
+	/*
+	 * load the choosen tasks stack pointers and run the task
+	 */
+	load_context();
 
-	if(CurrentTask->_new)
-	{
-		CurrentTask->_new=0;
-		asm ret;
-	}
-	enable();
+	if(currenttask->new)
+		currenttask->new=0;
+	
+	asm ret;
 }
-
-
-void initialize()
-{
-	int priority=0;
-	int i=0,j=0;
-
-	for(priority=0;priority<5;priority++)
-	{
-	for(i=0;i<10;i++)
-	{
-		RQ.ReadyQ[priority][i].left=-1;
-		RQ.ReadyQ[priority][i].right=-1;
-	}
-	RQ.start[priority]=-1;
-	RQ.end[priority]=-1;
-	}
-
-	for(i=0;i<10;i++)
-	{
-	BQ.BlockedQ[i].left=-1;
-	BQ.BlockedQ[i].right=-1;
-	}
-	BQ.start=-1;
-	BQ.end=-1;
-
-	for(i=0;i<MAXMUTEXES;i++)
-	{
-		mutex[i].resourceID=-1;
-		mutex[i].taskID=-1;
-		mutex[i].ownerID=-1;
-		mutex[i].first=-1;
-		mutex[i].last=-1;
-		for(j=0;j<MAXWAITINGTASKS;j++)
-		{
-			mutex[i].tasks[j].right=-1;
-			mutex[i].tasks[j].left=-1;
-		}
-	}
-	return;
-}
-
-
-

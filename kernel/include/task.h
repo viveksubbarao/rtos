@@ -10,7 +10,7 @@ num task_status {
  * task ctrl block
  */
 typedef struct tcb {
-	int             _new;		// new task ?
+	int             new;		// new task ?
 	unsigned int    ss, sp;		// stack pointers
 	unsigned int    ip;		// instruction pointer
 	int             priority;	// task priority
