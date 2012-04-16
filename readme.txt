@@ -14,6 +14,12 @@ How to clone this repo
 3. Run "git clone https://github.com/viveksubbarao/rtos"
 
 
+Coding Style
+------------
+Linux kernel coding style is strictly followed. Kindly refer to the kernel
+coding style at http://www.kernel.org/doc/Documentation/CodingStyle
+
+
 Directory structure
 -------------------
 
