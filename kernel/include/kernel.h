@@ -19,6 +19,7 @@ void interrupt switcher();
 			: \
 			: \
 		     )
+
 #define TIMER_INTR 	8  /*0X1C*/     /* The clock tick interrupt */
 #define SCHED_INTR 	200
 #define MAX_TASK_PRI	5
@@ -36,5 +37,4 @@ list_head readyq[MAX_TASK_PRI];
 list_head blockedq;
 
 task *currenttask;		// pointer to the currently running task
-int currentpriority;		// priority of the currently running task
-int isrunning=-1;		// checks wheather a task is running or not
+int isrunning = -1;		// checks wheather a task is running or not
