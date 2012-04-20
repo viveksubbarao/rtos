@@ -18,7 +18,7 @@ typedef struct tcb {
 	int             timerticks;	// sleep/schedule duration
 	task_status     status;		// current status of the task
 	int             id;		// task id
-	list_head	next;
+	list_head	task_list;
 }task;
 
 char far(stack[MAXTASK][4000]);	//stacks, one for each task

@@ -4,7 +4,7 @@ struct ll_node {
 };
 
 struct list_head {
-	struct ll_node *right, *left;
+	struct list_head *next, *prev;
 };
 
 static int ll_insert_node(struct list_head *head, void *val)

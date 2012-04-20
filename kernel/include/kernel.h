@@ -4,6 +4,12 @@ void interrupt(*oldhandler)(__CPPARGS);
 void interrupt Timer_isr();
 void interrupt switcher();
 
+#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+
+#define container_of(ptr, type, member) ({ \
+		const typeof( ((type *)0)->member ) *__mptr = (ptr);\
+		(type *)( (char *)__mptr - offsetof(type,member) );})
+
 #define save_context() \
 	asm volatile ("movl %%esp, %0\n\t" \
 			"mov %%ss, %1\n\t" \

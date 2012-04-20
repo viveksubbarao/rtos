@@ -14,7 +14,7 @@ struct task * runnable_task()
 	struct task *t;
 
 	for(priority = 0 ; priority < 5 ; priority++) {
-		if (reqdyq[priority].len == 0)
+		if (reqdyq[priority].ntasks == 0)
 			continue;
 
 		isrunning = 1;
@@ -53,19 +53,19 @@ void schedule_task()
 void timer_isr()
 {
 	struct task *t;
-	struct ll_node *n;
+	struct list_head *p;
 
-	if(blkdq.len != 0) {
-		n = blkdq.start;
-		while (n != NULL) {
-			t = (struct task *)n->data;
+	if(blkdq.ntasks != 0) {
+		p = &blkdq.tasks->task_list;
+		while (p != NULL) {
+			t = container_of(p, task, next_list);
 			t->timerticks--;
 			
 			if(t->timerticks == 0) {
 				bq_dequeue(t);
 				rq_enqueue(&readyq[t->priority], t);
 			}
-			n = n->right;
+			p = p->next;
 		 }
 	}
 
