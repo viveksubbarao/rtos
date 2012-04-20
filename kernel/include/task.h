@@ -1,4 +1,5 @@
-#define MAXTASK 1024 
+#include "list.h"
+#define MAX_TASKS 1024 
 
 num task_status {
 	UNUSED,
@@ -14,9 +15,10 @@ typedef struct tcb {
 	unsigned int    ss, sp;		// stack pointers
 	unsigned int    ip;		// instruction pointer
 	int             priority;	// task priority
-	int             timerticks;
+	int             timerticks;	// sleep/schedule duration
 	task_status     status;		// current status of the task
 	int             id;		// task id
+	list_head	next;
 }task;
 
 char far(stack[MAXTASK][4000]);	//stacks, one for each task

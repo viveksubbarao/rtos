@@ -1,4 +1,4 @@
-#include "ll.h"
+#include "list.h"
 
 void interrupt(*oldhandler)(__CPPARGS);
 void interrupt Timer_isr();
@@ -33,8 +33,16 @@ struct interrupt {
 /*
  * Contains 5 queues for the 5 different priorities supported.
  */
-list_head readyq[MAX_TASK_PRI];	
-list_head blockedq;
+struct readyq {
+	int priority;
+	int ntasks;
+	task *t;
+}rq[MAX_TASK_PRI];
+
+struct blkdq {
+	int ntasks;
+	task *t;
+}bq;
 
 task *currenttask;		// pointer to the currently running task
 int isrunning = -1;		// checks wheather a task is running or not

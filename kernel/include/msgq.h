@@ -13,5 +13,3 @@ int createqueue(int id);
 int deletequeue(int id);
 int post(int msgqid, char *msg);
 char* read(int msgqid);
-
-

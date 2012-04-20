@@ -1,14 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 struct ll_node {
 	void		*data;
 	struct ll_node	*left, *right;
 };
 
 struct list_head {
-	int		len;
-	struct ll_node 	*start, *end;
+	struct ll_node *right, *left;
 };
 
 static int ll_insert_node(struct list_head *head, void *val)
