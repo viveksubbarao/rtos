@@ -3,6 +3,44 @@
 char far *scr = (char far *) 0xB8000000L;
 static int tickcount;
 
+int  rq_enqueue(struct readyq *rq, task *t)
+{
+	if (rq == NULL || t == NULL)
+		return 1;
+
+	return list_insert(&rq->task->task_list, &task->task_list);
+}
+
+task* rq_dequeue(struct readyq *rq)
+{
+	struct list_head *p;
+
+	p = list_delete_node(&rq->task->task_list, 0);
+	if (p == NULL)
+		return NULL;
+
+	return container_of(p, task, task_list);
+}
+
+int bq_enqueue(task *t)
+{
+	if (t == NULL)
+		return 1;
+	
+	return list_insert(&bq->task->task_list, &t->task_list);
+}
+
+task* bq_dequeue(int pos)
+{
+	struct list_head *p;
+
+	p = list_delete_node(&bq->task->task_list, 0);
+	if (p == NULL)
+		return NULL;
+
+	return container_of(p, task, task_list);
+}
+
 void scheduler()
 {
 	asm int SCHED_INTR
@@ -54,17 +92,19 @@ void timer_isr()
 {
 	struct task *t;
 	struct list_head *p;
+	int pop = 0;
 
 	if(blkdq.ntasks != 0) {
 		p = &blkdq.tasks->task_list;
 		while (p != NULL) {
-			t = container_of(p, task, next_list);
+			t = container_of(p, task, task_list);
 			t->timerticks--;
 			
 			if(t->timerticks == 0) {
-				bq_dequeue(t);
+				bq_dequeue(pos);
 				rq_enqueue(&readyq[t->priority], t);
 			}
+			pos++;
 			p = p->next;
 		 }
 	}

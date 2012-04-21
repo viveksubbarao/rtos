@@ -1,76 +1,58 @@
-struct ll_node {
-	void		*data;
-	struct ll_node	*left, *right;
-};
-
 struct list_head {
 	struct list_head *next, *prev;
 };
 
-static int ll_insert_node(struct list_head *head, void *val)
+static int list_insert(struct list_head *head, struct list_head *val)
 {
-	struct ll_node *p;
+	struct list_head *p;
 
-	p = (struct ll_node *)malloc(sizeof(*p));
-	if (p == NULL)
+	if (head == NULL || val == NULL)
 		return 1;
-	
-	p->data = val;
-	p->right = p->left = NULL;
 
-	if (head->len == 0)
-		head->start = head->end = p;
-	else {
-		head->end->right = p;
-		p->left = head->end;
-		head->end = p;
-	}
+	p = head;
+	while (p->next != NULL)
+		p = p->next;
 
-	head->len++;
+	p->next = val;
 	return 0;
 }
 
-static int ll_node_exists(struct list_head *head, struct ll_node *n)
+static int list_node_exists(struct list_head *head, struct list_head *val)
 {
-	struct ll_node *p;
+	struct list_head *p;
 
-	if (!head || !n || head->len == 0)
+	if (!head || !val)
 		return 1;
 
-	p = head->start;
+	p = head;
 	while (p != NULL) {
-		if (p == n)
+		if (p == val)
 			return 0;
 	}
 	return 1;
 }
 
-static int ll_insert_node_after(struct list_head *head, int pos, void *val)
+static int list_insert_after(struct list_head *head, int pos, struct list_head *val)
 {
-	struct ll_node *p, *q, *r;
+	struct list_head *p, *q;
 	int i = 0;
 
-	if (!head || head->len == 0 || pos > head->len || pos < 0 || !val)
+	if (!head || pos < 0 || !val)
 		return 1;
 
-	p = head->start;
+	p = head;
 
 	while (p != NULL) {
 		if (i == pos) {
-			q = head->end;
-			r = p->right;
-			head->end = p;
-			if (ll_insert_node(head, val)) {
-				head->end = p;
-				return 1;
-			}
-			head->end->right = r;
-			r->left = head->end;
-			head->end = q;
+			q = p->next;
+			p->next = val;
+			val->prev = p;
+			val->next = q;
+			q->prev = val;
 			break;
 		}
 		i++;
-		p = p->right;
+		p = p->next;
 	}
 
 	if (p == NULL)
@@ -78,30 +60,26 @@ static int ll_insert_node_after(struct list_head *head, int pos, void *val)
 	return 0;
 }
 
-static int ll_insert_node_before(struct list_head *head, int pos, void *val)
+static int ll_insert_before(struct list_head *head, int pos, struct list_head *val)
 {
-	struct ll_node *p, *q;
+	struct list_head *p, *q;
 	int i = 0;
 
-	if (!head || head->len == 0 || pos > head->len || pos < 0 || !val)
+	if (!head || pos < 0 || !val)
 		return 1;
 
-	p = head->start;
+	p = head;
 
 	while (p != NULL) {
 		if (i == pos) {
-			q = head->end;
-			head->end = p->left;
-			if (ll_insert_node(head, val)) {
-				head->end = p;
-				return 1;
-			}
-			head->end->right = p;
-			p->left = head->end;
-			head->end = q;
+			q = p->prev;
+			q->next = val;
+			val->prev = q;
+			val->next = p;
+			p->prev = val;
 		}
 		i++;
-		p = p->right;
+		p = p->next;
 	}
 
 	if (p == NULL)
@@ -109,64 +87,31 @@ static int ll_insert_node_before(struct list_head *head, int pos, void *val)
 	return 0;
 }
 
-static int ll_delete_node(struct list_head *head, int pos)
+static struct list_head* list_delete_node(struct list_head *head, int pos)
 {
-	struct ll_node *p;
+	struct list_head *p;
 	struct ll_node *temp;
 	int i = 0;
 
-	if (!head || head->len == 0 || pos < 0 || pos > head->len)
-		return 1;
+	if (!head || pos < 0)
+		return NULL;
 
-	p = head->start;
+	p = head;
 	while (p != NULL) {
 		if (i == pos) {
-			temp = p;
-			p->left->right = p->right;
-			p->right->left = p->left;
+			if (pos == 0)
+				p->next->prev = NULL;
+			else if (p->next == NULL)
+				p->prev->next = NULL;
+			else {
+				p->prev->next = p->next;
+				p->next->prev = p->prev;
+			}
 			break;
 		}
 		i++;
-		p = p->right;
+		p = p->next;
 	}
 	
-	if (p == NULL)
-		return 1;
-	
-	free(temp);
-	return 0;
-}
-
-static int ll_delete(struct list_head *head)
-{
-	struct ll_node *p, *q;
-
-	if (!head || head->len == 0)
-		return 1;
-
-	p = head->start;
-
-	while (p != NULL) {
-		q = p;
-		p = p->right;
-		free(q);
-	}
-
-	head->len = 0;
-	head->start = head->end = 0;
-	return 0;
-}
-
-static struct list_head * ll_create()
-{
-	struct list_head *lh;
-
-	lh = (struct list_head *)malloc(sizeof(*lh));
-	if (lh == NULL)
-		return NULL;
-
-	lh->len = 0;
-	lh->start = lh->end = NULL;
-
-	return lh;
+	return p;
 }
